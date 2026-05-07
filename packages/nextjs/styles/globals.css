@@ -108,7 +108,7 @@
 
 .btn {
   @apply shadow-md;
-  border-radius: 9999rem;
+  border-radius: 9999px;
 }
 
 .btn.btn-ghost {

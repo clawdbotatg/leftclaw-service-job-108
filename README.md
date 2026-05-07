@@ -1,83 +1,56 @@
-# 🏗 Scaffold-ETH 2
+# LP Auto Manager
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+An automated WETH/USDC liquidity manager for Uniswap V3 on Base. The contract holds a single concentrated-liquidity position (0.05% fee tier) and tokenizes ownership as ERC20 shares (LPAMS). Anyone can permissionlessly trigger fee collection and reinvestment; the owner can rebalance the active tick range.
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+## Live Contract
 
-> [!NOTE]
-> 🤖 Scaffold-ETH 2 is AI-ready! It has everything agents need to build on Ethereum. Check `.agents/`, `.claude/`, `.opencode` or `.cursor/` for more info.
+- **Network**: Base mainnet (chainId 8453)
+- **Address**: [`0x92eb64088e5A291f5f8E837Aa203F01733f479c3`](https://basescan.org/address/0x92eb64088e5A291f5f8E837Aa203F01733f479c3)
+- **Token0**: WETH (`0x4200000000000000000000000000000000000006`)
+- **Token1**: USDC (`0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`)
+- **Fee tier**: 500 (0.05%)
 
-⚙️ Built using NextJS, RainbowKit, Foundry, Wagmi, Viem, and Typescript.
+## Client / Owner Note
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+After deployment, ownership of the contract is transferred to the client wallet via the OpenZeppelin two-step `Ownable2Step` pattern. The client wallet **must call `acceptOwnership()`** to become the active owner before any owner-only actions (rebalance, etc.) can be performed.
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+The current pending owner is the wallet listed by `pendingOwner()` on the contract. Once that wallet connects to this dApp, the owner panel will surface an "Accept Ownership" button.
 
-## Requirements
+## Features
 
-Before you begin, you need to install the following tools:
+- **Deposit**: Supply WETH and/or USDC, receive LPAMS shares proportional to the liquidity added.
+- **Withdraw**: Burn LPAMS shares, receive a pro-rata share of the underlying WETH and USDC.
+- **Auto-compound**: Anyone can call `collectAndReinvest()` to claim earned fees and re-add them as liquidity.
+- **Rebalance** (owner-only): Move the active tick range to track price.
 
-- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+## Run Locally
 
-## Quickstart
+Requires Node.js (>= v20.18.3), Yarn, and Git.
 
-To get started with Scaffold-ETH 2, follow the steps below:
-
-1. Install dependencies if it was skipped in CLI:
-
-```
-cd my-dapp-example
+```bash
+# 1. Install dependencies
 yarn install
-```
 
-2. Run a local network in the first terminal:
-
-```
-yarn chain
-```
-
-This command starts a local Ethereum network using Foundry. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/foundry/foundry.toml`.
-
-3. On a second terminal, deploy the test contract:
-
-```
-yarn deploy
-```
-
-This command deploys a test smart contract to the local network. The contract is located in `packages/foundry/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/foundry/script` to deploy the contract to the network. You can also customize the deploy script.
-
-4. On a third terminal, start your NextJS app:
-
-```
+# 2. Start the Next.js frontend
 yarn start
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+The app is available at `http://localhost:3000`.
 
-Run smart contract test with `yarn foundry:test`
+### Static export build
 
-- Edit your smart contracts in `packages/foundry/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/foundry/script`
+```bash
+cd packages/nextjs
+NODE_OPTIONS="--require ./polyfill-localstorage.cjs" \
+  NEXT_PUBLIC_IPFS_BUILD=true \
+  yarn build
+```
 
+Output is written to `packages/nextjs/out/`, suitable for hosting on IPFS or any static host.
 
-## Documentation
+## Architecture
 
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
+- `packages/foundry/` — Solidity contracts (`LPAutoManager.sol`)
+- `packages/nextjs/` — Next.js App Router frontend with RainbowKit, Wagmi, Viem, DaisyUI
 
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+The frontend reads contract data using SE-2 hooks (`useScaffoldReadContract`, `useScaffoldWriteContract`) and supports MetaMask, WalletConnect, Ledger, Coinbase Smart Wallet, Rainbow, Phantom, and Safe.
