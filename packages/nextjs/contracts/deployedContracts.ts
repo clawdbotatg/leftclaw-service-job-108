@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   8453: {
     LPAutoManager: {
-      address: "0x92eb64088e5A291f5f8E837Aa203F01733f479c3",
+      address: "0x92eb64088e5a291f5f8e837aa203f01733f479c3",
       abi: [
         {
           type: "constructor",
@@ -33,12 +33,30 @@ const deployedContracts = {
               internalType: "uint24",
             },
             {
+              name: "_tickSpacing",
+              type: "int24",
+              internalType: "int24",
+            },
+            {
               name: "_owner",
               type: "address",
               internalType: "address",
             },
           ],
           stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "MINIMUM_LIQUIDITY",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
         },
         {
           type: "function",
@@ -116,6 +134,29 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "closePosition",
+          inputs: [
+            {
+              name: "amount0Min",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "amount1Min",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "deadline",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
           name: "collectAndReinvest",
           inputs: [],
           outputs: [
@@ -156,6 +197,21 @@ const deployedContracts = {
             },
             {
               name: "amount1Desired",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "amount0Min",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "amount1Min",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "deadline",
               type: "uint256",
               internalType: "uint256",
             },
@@ -235,6 +291,40 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "onERC721Received",
+          inputs: [
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "",
+              type: "bytes",
+              internalType: "bytes",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "bytes4",
+              internalType: "bytes4",
+            },
+          ],
+          stateMutability: "pure",
+        },
+        {
+          type: "function",
           name: "owner",
           inputs: [],
           outputs: [
@@ -300,12 +390,27 @@ const deployedContracts = {
               internalType: "int24",
             },
             {
-              name: "amount0Min",
+              name: "oldAmount0Min",
               type: "uint256",
               internalType: "uint256",
             },
             {
-              name: "amount1Min",
+              name: "oldAmount1Min",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "newAmount0Min",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "newAmount1Min",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "deadline",
               type: "uint256",
               internalType: "uint256",
             },
@@ -317,6 +422,29 @@ const deployedContracts = {
           type: "function",
           name: "renounceOwnership",
           inputs: [],
+          outputs: [],
+          stateMutability: "nonpayable",
+        },
+        {
+          type: "function",
+          name: "rescueTokens",
+          inputs: [
+            {
+              name: "token",
+              type: "address",
+              internalType: "address",
+            },
+            {
+              name: "amount",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "to",
+              type: "address",
+              internalType: "address",
+            },
+          ],
           outputs: [],
           stateMutability: "nonpayable",
         },
@@ -336,6 +464,19 @@ const deployedContracts = {
         {
           type: "function",
           name: "tickLower",
+          inputs: [],
+          outputs: [
+            {
+              name: "",
+              type: "int24",
+              internalType: "int24",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "tickSpacing",
           inputs: [],
           outputs: [
             {
@@ -483,6 +624,21 @@ const deployedContracts = {
           inputs: [
             {
               name: "shares",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "amount0Min",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "amount1Min",
+              type: "uint256",
+              internalType: "uint256",
+            },
+            {
+              name: "deadline",
               type: "uint256",
               internalType: "uint256",
             },
@@ -641,6 +797,19 @@ const deployedContracts = {
         },
         {
           type: "event",
+          name: "PositionClosed",
+          inputs: [
+            {
+              name: "tokenId",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
           name: "Rebalanced",
           inputs: [
             {
@@ -666,6 +835,25 @@ const deployedContracts = {
               type: "int24",
               indexed: false,
               internalType: "int24",
+            },
+          ],
+          anonymous: false,
+        },
+        {
+          type: "event",
+          name: "ReinvestFailed",
+          inputs: [
+            {
+              name: "balance0",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
+            },
+            {
+              name: "balance1",
+              type: "uint256",
+              indexed: false,
+              internalType: "uint256",
             },
           ],
           anonymous: false,
@@ -729,6 +917,11 @@ const deployedContracts = {
         {
           type: "error",
           name: "AlreadyInitialized",
+          inputs: [],
+        },
+        {
+          type: "error",
+          name: "BadTickSpacing",
           inputs: [],
         },
         {
@@ -819,6 +1012,11 @@ const deployedContracts = {
         },
         {
           type: "error",
+          name: "InsufficientInitialLiquidity",
+          inputs: [],
+        },
+        {
+          type: "error",
           name: "InvalidTickRange",
           inputs: [],
         },
@@ -877,7 +1075,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 45693935,
+      deployedOnBlock: 45694472,
     },
   },
 } as const;

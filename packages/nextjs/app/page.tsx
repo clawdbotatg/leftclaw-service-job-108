@@ -44,6 +44,15 @@ const safeParseInt = (value: string): number | undefined => {
   return parsed;
 };
 
+const applySlippage = (amount: bigint, slippagePct: number): bigint => {
+  if (amount === 0n) return 0n;
+  // multiply by (100 - slippagePct) using basis-points-of-percent precision
+  const numerator = BigInt(Math.floor((100 - slippagePct) * 100));
+  return (amount * numerator) / 10000n;
+};
+
+const getDeadline = (): bigint => BigInt(Math.floor(Date.now() / 1000) + 30 * 60);
+
 // ─── Slippage Selector ────────────────────────────────────────────────────────
 
 type SlippageSelectorProps = {
@@ -342,10 +351,13 @@ const DepositPanel = () => {
       return;
     }
     try {
+      const amount0Min = applySlippage(wethAmountParsed, slippage);
+      const amount1Min = applySlippage(usdcAmountParsed, slippage);
+      const deadline = getDeadline();
       await writeAndOpen(() =>
         writeLp({
           functionName: "deposit",
-          args: [wethAmountParsed, usdcAmountParsed],
+          args: [wethAmountParsed, usdcAmountParsed, amount0Min, amount1Min, deadline] as any,
         }),
       );
       notification.success("Deposit submitted");
@@ -490,7 +502,7 @@ const WithdrawPanel = () => {
       await writeAndOpen(() =>
         writeLp({
           functionName: "withdraw",
-          args: [sharesParsed],
+          args: [sharesParsed, 0n, 0n, getDeadline()] as any,
         }),
       );
       notification.success("Withdraw submitted");
@@ -674,7 +686,15 @@ const OwnerPanel = () => {
       await writeAndOpen(() =>
         writeContractAsync({
           functionName: "rebalance",
-          args: [lower, upper, safeParseUnits(oldAmount0Min, 18), safeParseUnits(oldAmount1Min, 6)],
+          args: [
+            lower,
+            upper,
+            safeParseUnits(oldAmount0Min, 18),
+            safeParseUnits(oldAmount1Min, 6),
+            0n,
+            0n,
+            getDeadline(),
+          ] as any,
         }),
       );
       notification.success("Rebalance submitted");
