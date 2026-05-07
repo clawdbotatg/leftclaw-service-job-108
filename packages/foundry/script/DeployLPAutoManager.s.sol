@@ -22,13 +22,16 @@ contract DeployLPAutoManager is ScaffoldETHDeploy {
     address internal constant WETH = 0x4200000000000000000000000000000000000006;
     address internal constant USDC = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913;
     uint24 internal constant POOL_FEE = 500;
+    /// @dev Tick spacing for the 0.05% fee tier on Uniswap V3 (and on Base).
+    int24 internal constant TICK_SPACING = 10;
 
     // --- Client (final owner after acceptOwnership) ---
     address internal constant CLIENT = 0xE226c3D455BE157c544AD62Fda8D0728f12c3A5D;
 
     function run() external ScaffoldEthDeployerRunner {
         // 1. Deploy with the deployer as initial owner so we can perform any pre-handover setup.
-        LPAutoManager manager = new LPAutoManager(POSITION_MANAGER, WETH, USDC, POOL_FEE, deployer);
+        LPAutoManager manager =
+            new LPAutoManager(POSITION_MANAGER, WETH, USDC, POOL_FEE, TICK_SPACING, deployer);
 
         // 2. Initiate ownership handover. CLIENT must call acceptOwnership() to finalize.
         manager.transferOwnership(CLIENT);
