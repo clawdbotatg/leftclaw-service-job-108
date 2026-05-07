@@ -1,5 +1,7 @@
 # LP Auto Manager
 
+**Live URL:** https://bafybeie2q2cuumt4dsxe4htnfmtzcv3inew6hh6w2bsmxnl5dcdh673v3y.ipfs.community.bgipfs.com/
+
 An automated WETH/USDC liquidity manager for Uniswap V3 on Base. The contract holds a single concentrated-liquidity position (0.05% fee tier) and tokenizes ownership as ERC20 shares (LPAMS). Anyone can permissionlessly trigger fee collection and reinvestment; the owner can rebalance the active tick range.
 
 ## Live Contract
